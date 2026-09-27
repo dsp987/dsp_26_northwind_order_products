@@ -43,9 +43,31 @@ FROM raw.orders;
 
 SELECT COUNT(*) FROM staging.orders;
 
+--###########################################################################################################################################
+
+DROP TABLE IF EXISTS staging.orders_details CASCADE;
+CREATE TABLE staging.orders_details(
+    order_id        VARCHAR(50)     PRIMARY KEY,
+    product_id      VARCHAR(50)     NOT NULL,
+    unit_price      NUMERIC(10,2)   NOT NULL,
+    quantity        INTEGER         NOT NULL,
+    discount        NUMERIC(10,2)   NOT NULL
+);
+
+SELECT * FROM staging.orders_details;
+
+ALTER TABLE staging.orders_details DROP CONSTRAINT orders_details_pkey;
+
+INSERT INTO staging.orders_details(
+    order_id, product_id, 
+    unit_price, quantity, discount
+)
 SELECT
-    MIN(order_date),
-    MAX(order_date)
-FROM staging.orders    
+    TRIM(order_id),
+    TRIM(product_id),
+    TRIM(unit_price)::NUMERIC(10,2),
+    TRIM(quantity)::INTEGER,
+    TRIM(discount)::NUMERIC(10,2)
+FROM raw.orders_details;
 
-
+SELECT * FROM staging.orders_details;
