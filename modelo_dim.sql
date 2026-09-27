@@ -8,6 +8,7 @@ FROM staging.orders
     --dim_branch
     --dim_employee
     --dim_customer
+    --dim_orders_details
 
 --###########################################################################################################################################
 
@@ -143,6 +144,21 @@ SELECT * FROM dw.dim_customer
 
 --###########################################################################################################################################
 
+--dim_orders_details
+
+DROP TABLE IF EXISTS dw.dim_orders_details CASCADE;
+CREATE TABLE dw.dim_orders_details(
+    order_sk        SERIAL PRIMARY KEY,
+    product_id      VARCHAR(50)     NOT NULL,
+    unit_price      NUMERIC(10,2)   NOT NULL,
+    quantity        INTEGER         NOT NULL,
+    discount        NUMERIC(10,2)   NOT NULL
+);
+
+SELECT * FROM dw.dim_orders_details
+
+--###########################################################################################################################################
+
 --carga das dimensões
 
 INSERT INTO dw.dim_branch(city, region, country)
@@ -164,6 +180,13 @@ SELECT DISTINCT freight, ship_address FROM staging.orders
 
 SELECT * FROM dw.dim_customer
 
+--*****************************************************************************
+
+INSERT INTO dw.dim_orders_details(product_id, unit_price, quantity, discount)
+SELECT DISTINCT product_id, unit_price, quantity, discount FROM staging.orders_details
+
+SELECT * FROM dw.dim_orders_details
+
 --###########################################################################################################################################
 
 --Verificação das tabelas dimensões
@@ -171,7 +194,9 @@ SELECT 'employee' AS dimensao, COUNT(*) AS linhas FROM dw.dim_employee
 UNION ALL
 SELECT 'branch', COUNT(*) FROM dw.dim_branch
 UNION ALL
-SELECT 'customer', COUNT(*) FROM dw.dim_customer;
+SELECT 'customer', COUNT(*) FROM dw.dim_customer
+UNION ALL
+SELECT 'orders_details', COUNT(*) FROM dw.dim_orders_details;
 
 
 --###########################################################################################################################################
